@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Freedom Runner — Indian Independence</title>
 
 <!-- PWA Meta -->
@@ -12,17 +12,19 @@
 <link rel="apple-touch-icon" href="icons/icon-512.png">
 
 <style>
-    body {
+    html, body {
         margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
         background: #03101c;
         color: white;
         font-family: Arial, sans-serif;
-        text-align: center;
     }
     canvas {
         display: block;
-        margin: auto;
         background: linear-gradient(#FF9933, white, #138808);
+        touch-action: none;
     }
     footer {
         position: fixed;
@@ -31,6 +33,7 @@
         padding: 8px;
         background: rgba(0, 0, 0, 0.7);
         font-size: 14px;
+        text-align: center;
     }
     footer a {
         color: #00aced;
@@ -40,8 +43,7 @@
 </head>
 <body>
 
-<h1>🇮🇳 Freedom Runner 🇮🇳</h1>
-<canvas id="gameCanvas" width="800" height="400"></canvas>
+<canvas id="gameCanvas"></canvas>
 
 <footer>
     A game by Arjun Mankar — 
@@ -49,14 +51,35 @@
 </footer>
 
 <script>
-// ====== GAME SCRIPT ======
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-let player = { x: 50, y: 300, width: 40, height: 40, dy: 0, jumpPower: -10, gravity: 0.5 };
-let obstacles = [];
-let score = 0;
-let gameOver = false;
+let player, obstacles, score, gameOver;
+let gravity = 0.5;
+let jumpPower = -10;
+let obstacleSpeed = 5;
+let obstacleFrequency = 100;
+
+// Resize for mobile
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - document.querySelector('footer').offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function initGame() {
+    player = {
+        x: canvas.width * 0.1,
+        y: canvas.height * 0.8,
+        width: canvas.width * 0.08,
+        height: canvas.height * 0.08,
+        dy: 0
+    };
+    obstacles = [];
+    score = 0;
+    gameOver = false;
+}
 
 function drawPlayer() {
     ctx.fillStyle = '#FFD700';
@@ -72,14 +95,13 @@ function drawObstacles() {
 
 function drawScore() {
     ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Score: ${score}`, 10, 20);
+    ctx.font = `${Math.floor(canvas.height * 0.05)}px Arial`;
+    ctx.fillText(`Score: ${score}`, 20, 40);
 }
 
 function updatePlayer() {
     player.y += player.dy;
-    player.dy += player.gravity;
-
+    player.dy += gravity;
     if (player.y + player.height > canvas.height) {
         player.y = canvas.height - player.height;
         player.dy = 0;
@@ -87,15 +109,18 @@ function updatePlayer() {
 }
 
 function spawnObstacle() {
-    let height = 40;
+    let height = canvas.height * 0.08;
     let y = canvas.height - height;
-    obstacles.push({ x: canvas.width, y: y, width: 20, height: height });
+    obstacles.push({
+        x: canvas.width,
+        y: y,
+        width: canvas.width * 0.05,
+        height: height
+    });
 }
 
 function updateObstacles() {
-    obstacles.forEach(obs => {
-        obs.x -= 5;
-    });
+    obstacles.forEach(obs => { obs.x -= obstacleSpeed; });
     obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
 }
 
@@ -113,10 +138,11 @@ function checkCollision() {
 function gameLoop() {
     if (gameOver) {
         ctx.fillStyle = 'black';
-        ctx.font = '30px Arial';
-        ctx.fillText("Game Over! Refresh to Play Again", 150, 200);
+        ctx.font = `${Math.floor(canvas.height * 0.06)}px Arial`;
+        ctx.fillText("Game Over! Tap to Restart", canvas.width/4, canvas.height/2);
         return;
     }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawObstacles();
@@ -127,17 +153,24 @@ function gameLoop() {
     checkCollision();
 
     score++;
-    if (score % 100 === 0) spawnObstacle();
+    if (score % obstacleFrequency === 0) spawnObstacle();
 
     requestAnimationFrame(gameLoop);
 }
 
-document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && player.y >= canvas.height - player.height) {
-        player.dy = player.jumpPower;
+// Tap or space to jump / restart
+function jump() {
+    if (gameOver) {
+        initGame();
+        gameLoop();
+    } else if (player.y >= canvas.height - player.height) {
+        player.dy = jumpPower;
     }
-});
+}
+canvas.addEventListener('touchstart', jump);
+document.addEventListener('keydown', (e) => { if (e.code === 'Space') jump(); });
 
+initGame();
 gameLoop();
 
 // ===== PWA Service Worker Registration =====
