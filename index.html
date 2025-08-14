@@ -1,187 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Freedom Runner — Indian Independence</title>
+<meta charset="UTF-8" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Freedom Runner — Indian Independence (Pixel)</title>
 
-<!-- PWA Meta -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FF9933">
-<link rel="icon" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-512.png">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#FF9933" />
+<link rel="icon" sizes="192x192" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-512.png" />
 
 <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-        background: #03101c;
-        color: white;
-        font-family: Arial, sans-serif;
-    }
-    canvas {
-        display: block;
-        background: linear-gradient(#FF9933, white, #138808);
-        touch-action: none;
-    }
-    footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        padding: 8px;
-        background: rgba(0, 0, 0, 0.7);
-        font-size: 14px;
-        text-align: center;
-    }
-    footer a {
-        color: #00aced;
-        text-decoration: none;
-    }
+  :root{
+    --saffron:#FF9933; --green:#138808; --navy:#001a66; --ink:#0a1220; --sky:#9fdcff;
+  }
+  html,body{ margin:0; height:100%; background:#03101c; color:#fff; font-family:system-ui,Segoe UI,Inter,Arial,sans-serif; }
+  #wrap{ min-height:100%; display:flex; flex-direction:column; }
+  #topbar{
+    padding:8px 12px; text-align:center; font-weight:800; letter-spacing:.3px;
+    background:linear-gradient(90deg,var(--saffron),#fff,var(--green));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 10px rgba(255,255,255,.25);
+  }
+  #stage{
+    position:relative; flex:1; display:flex; align-items:center; justify-content:center;
+  }
+  canvas{ width:100vw; height:calc(100vh - 120px); max-height:86vh; display:block;
+          background:linear-gradient(#7fd1ff,#bfe9ff 65%, #eaf7ff); image-rendering:pixelated; }
+  #hud{
+    position:absolute; inset:0; pointer-events:none; padding:8px;
+    font-weight:800; text-shadow:0 2px 6px rgba(0,0,0,.35);
+  }
+  .pill{ position:absolute; top:8px; left:8px; background:rgba(0,0,0,.35);
+         border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:6px 10px; font-size:13px; }
+  .pill.r{ left:auto; right:8px; }
+  #touch{
+    position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:10px;
+    pointer-events:auto;
+  }
+  .tbtn{
+    -webkit-tap-highlight-color:transparent;
+    background:rgba(255,255,255,.9); color:#0a2340; border:none; border-radius:12px; padding:12px 16px;
+    font-weight:900; min-width:62px; box-shadow:0 6px 16px rgba(0,0,0,.2);
+  }
+  #bar{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:10px;
+  }
+  button{
+    appearance:none; border:none; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#e7eef7); color:#0b2a50; box-shadow:0 4px 0 #9fb7cf, 0 10px 18px rgba(0,0,0,.15);
+  }
+  button:active{ transform:translateY(1px); box-shadow:0 2px 0 #9fb7cf, 0 6px 12px rgba(0,0,0,.15); }
+
+  footer{
+    text-align:center; padding:10px 8px 14px; color:#d9e6f2; font-size:14px;
+    background:linear-gradient(180deg,transparent,rgba(0,0,0,.25));
+  }
+  footer a{ color:#fff; font-weight:900; text-decoration:none; border-bottom:2px solid rgba(255,255,255,.6); }
 </style>
 </head>
 <body>
+<div id="wrap">
+  <div id="topbar">🇮🇳 Freedom Runner — Pixel Edition</div>
 
-<canvas id="gameCanvas"></canvas>
+  <div id="stage">
+    <canvas id="cv" width="960" height="540" aria-label="Freedom Runner Game"></canvas>
+    <div id="hud" aria-hidden="true">
+      <div class="pill" id="stats">Score 0 • Chakras 0 • Dist 0%</div>
+      <div class="pill r" id="hint">Tap ⤴︎ to Jump • ◀ ▶ to Move • ⏸ Pause</div>
+      <div id="touch" style="display:none">
+        <button class="tbtn" data-act="left">◀</button>
+        <button class="tbtn" data-act="jump">⤴︎</button>
+        <button class="tbtn" data-act="right">▶</button>
+        <button class="tbtn" data-act="pause">⏸</button>
+      </div>
+    </div>
+  </div>
 
-<footer>
-    A game by Arjun Mankar — 
-    <a href="https://www.instagram.com/arjunmankar79/" target="_blank">@arjunmankar79</a>
-</footer>
+  <div id="bar">
+    <button id="start">▶ Start</button>
+    <button id="restart" style="display:none">↻ Restart</button>
+    <button id="mute">🔊 Sound</button>
+  </div>
+
+  <footer>
+    A game by <strong>arjun mankar</strong> • Follow on Instagram:
+    <a href="https://www.instagram.com/arjunmankar79/" target="_blank" rel="noopener">@arjunmankar79</a>
+  </footer>
+</div>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+/* ========= FREEDOM RUNNER — Pixel Edition (Mobile + PWA) =========
+   - Responsive canvas, touch controls, offline-ready (via sw.js)
+   - Pixel art generated procedurally (no external assets)
+   - Player runs with flag, guards/barbed wire obstacles, Chakra coins
+==================================================================== */
 
-let player, obstacles, score, gameOver;
-let gravity = 0.5;
-let jumpPower = -10;
-let obstacleSpeed = 5;
-let obstacleFrequency = 100;
+const CV = document.getElementById('cv');
+const C = CV.getContext('2d', { alpha: false });
+const stats = document.getElementById('stats');
+const startBtn = document.getElementById('start');
+const restartBtn = document.getElementById('restart');
+const muteBtn = document.getElementById('mute');
+const touch = document.getElementById('touch');
+const hint = document.getElementById('hint');
 
-// Resize for mobile
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - document.querySelector('footer').offsetHeight;
+let muted = false;
+
+// ---------- Responsive sizing (mobile-first) ----------
+function fitCanvas(){
+  const availH = window.innerHeight - document.getElementById('bar').offsetHeight - 56; // topbar+footer approx
+  const w = window.innerWidth, h = Math.max(280, availH);
+  // Keep internal buffer 16:9 but scale visually, use DPR for crispness
+  const DPR = Math.min(3, window.devicePixelRatio || 1);
+  CV.style.width = w + 'px';
+  CV.style.height = h + 'px';
+  CV.width = Math.round(w * DPR);
+  CV.height = Math.round(h * DPR);
+  C.setTransform(DPR,0,0,DPR,0,0); // draw in CSS pixels
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+addEventListener('resize', fitCanvas);
+fitCanvas();
 
-function initGame() {
-    player = {
-        x: canvas.width * 0.1,
-        y: canvas.height * 0.8,
-        width: canvas.width * 0.08,
-        height: canvas.height * 0.08,
-        dy: 0
-    };
-    obstacles = [];
-    score = 0;
-    gameOver = false;
-}
-
-function drawPlayer() {
-    ctx.fillStyle = '#FFD700';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-}
-
-function drawObstacles() {
-    ctx.fillStyle = '#8B0000';
-    obstacles.forEach(obs => {
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-    });
-}
-
-function drawScore() {
-    ctx.fillStyle = 'black';
-    ctx.font = `${Math.floor(canvas.height * 0.05)}px Arial`;
-    ctx.fillText(`Score: ${score}`, 20, 40);
-}
-
-function updatePlayer() {
-    player.y += player.dy;
-    player.dy += gravity;
-    if (player.y + player.height > canvas.height) {
-        player.y = canvas.height - player.height;
-        player.dy = 0;
-    }
+// ---------- Mini beep synth ----------
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const actx = new AudioCtx();
+function beep(freq=440, dur=0.08, type='square', vol=.12){
+  if(muted) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol, t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g).connect(actx.destination);
+  o.start(t); o.stop(t+dur+0.05);
 }
 
-function spawnObstacle() {
-    let height = canvas.height * 0.08;
-    let y = canvas.height - height;
-    obstacles.push({
-        x: canvas.width,
-        y: y,
-        width: canvas.width * 0.05,
-        height: height
-    });
+// ---------- Game state ----------
+let state = 'title'; // title|play|pause|over|win
+const G = { // dynamic based on canvas height
+  ground() { return CV.height/2 + Math.min(220, CV.height*0.24); }
+};
+const player = {
+  x: 60, y: 0, w: 20, h: 26, vy: 0, onGround: false, speed: 3.2,
+  anim:0, flagWave:0, shield:false, slow:0, trail:[]
+};
+let camX = 0, dist = 0, score = 0, coins = 0, lives = 1;
+const GOAL_DIST = 5000;
+const chakras = [], patrols = [], wires = [], powerups = [];
+let t = 0, last = 0;
+
+// ---------- Inputs ----------
+const keys = {left:false,right:false,up:false};
+addEventListener('keydown', (e)=>{
+  if(['ArrowLeft','ArrowRight','ArrowUp','Space','KeyA','KeyD','KeyW','KeyP'].includes(e.code)) e.preventDefault();
+  if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=true;
+  if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=true;
+  if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') keys.up=true;
+  if(e.code==='KeyP') togglePause();
+});
+addEventListener('keyup', (e)=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=false;
+  if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=false;
+  if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') keys.up=false;
+});
+
+// Touch UI
+const isTouch = matchMedia('(pointer:coarse)').matches;
+if(isTouch){ touch.style.display='flex'; hint.textContent='Tap ⤴︎ to Jump • ◀ ▶ Move • ⏸ Pause'; }
+touch.addEventListener('touchstart', (e)=>{
+  const act = e.target.closest('.tbtn')?.dataset.act; if(!act) return;
+  if(act==='left') keys.left = true;
+  if(act==='right') keys.right = true;
+  if(act==='jump') keys.up = true;
+  if(act==='pause') togglePause();
+},{passive:false});
+touch.addEventListener('touchend',(e)=>{
+  const act = e.target.closest('.tbtn')?.dataset.act; if(!act) return;
+  if(act==='left') keys.left = false;
+  if(act==='right') keys.right = false;
+  if(act==='jump') keys.up = false;
+});
+
+// ---------- World builders ----------
+const R = (a,b)=>Math.random()*(b-a)+a;
+const RI = (a,b)=>Math.floor(R(a,b+1));
+function rects(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+
+function buildWorld(){
+  chakras.length=0; patrols.length=0; wires.length=0; powerups.length=0;
+  for(let x=420; x<GOAL_DIST; x+= RI(220,420)) chakras.push({x, y:G.ground()- RI(90,150), r:14, v:R(0.08,0.2)});
+  for(let x=580; x<GOAL_DIST; x+= RI(460,720)) patrols.push({x, y:G.ground()-30, w:22, h:30, phase:R(0,6.28)});
+  for(let x=840; x<GOAL_DIST; x+= RI(680,980)) wires.push({x, y:G.ground()-16, w: RI(50,100), h:12});
+  for(let x=1200; x<GOAL_DIST; x+= RI(900,1400)) powerups.push({x, y:G.ground()-RI(110,160), w:24, h:24, type: Math.random()<0.5?'charkha':'flag', bob:R(0,6.28)});
 }
 
-function updateObstacles() {
-    obstacles.forEach(obs => { obs.x -= obstacleSpeed; });
-    obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+// ---------- Pixel Art (drawn procedurally) ----------
+function pxRect(x,y,w,h,color){ C.fillStyle=color; C.fillRect(x,y,w,h); }
+
+// Flag (tricolour with chakra)
+function drawFlag(x,y,scale=1){
+  const w = 18*scale, h = 12*scale;
+  pxRect(x,y,w,h/3,'#FF9933');          // saffron
+  pxRect(x,y+h/3,w,h/3,'#ffffff');      // white
+  pxRect(x,y+2*h/3,w,h/3,'#138808');    // green
+  // chakra
+  C.strokeStyle = '#001a66'; C.lineWidth = Math.max(1, 1*scale);
+  C.beginPath(); C.arc(x+w/2,y+h/2, (h/2.8),0,Math.PI*2); C.stroke();
+  for(let i=0;i<12;i++){
+    const a = i*(Math.PI*2/12);
+    C.beginPath();
+    C.moveTo(x+w/2,y+h/2);
+    C.lineTo(x+w/2+Math.cos(a)*h/2.8,y+h/2+Math.sin(a)*h/2.8);
+    C.stroke();
+  }
 }
 
-function checkCollision() {
-    obstacles.forEach(obs => {
-        if (player.x < obs.x + obs.width &&
-            player.x + player.width > obs.x &&
-            player.y < obs.y + obs.height &&
-            player.y + player.height > obs.y) {
-            gameOver = true;
-        }
-    });
+// Player sprite (simple 2-frame run + waving flag)
+function drawPlayer(px,py,frame=0){
+  // body
+  pxRect(px,py, 20,26, '#1a3d6b');           // torso
+  pxRect(px+6,py-6, 8,6, '#ffd7b3');         // head
+  // legs (run anim)
+  const leg = frame%2===0 ? [ [2,24,6,2], [12,22,6,2] ] : [ [2,22,6,2], [12,24,6,2] ];
+  leg.forEach(L=>pxRect(px+L[0], py+L[1], L[2], L[3], '#0f2541'));
+  // flag pole
+  C.strokeStyle='#704214'; C.lineWidth=2; C.beginPath(); C.moveTo(px+19, py-6); C.lineTo(px+19, py+2); C.stroke();
+  // flag cloth sway
+  const sway = Math.sin(player.flagWave)*2;
+  drawFlag(px+19, py-10 + sway, 0.9);
 }
 
-function gameLoop() {
-    if (gameOver) {
-        ctx.fillStyle = 'black';
-        ctx.font = `${Math.floor(canvas.height * 0.06)}px Arial`;
-        ctx.fillText("Game Over! Tap to Restart", canvas.width/4, canvas.height/2);
-        return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
-    drawObstacles();
-    drawScore();
-
-    updatePlayer();
-    updateObstacles();
-    checkCollision();
-
-    score++;
-    if (score % obstacleFrequency === 0) spawnObstacle();
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Tap or space to jump / restart
-function jump() {
-    if (gameOver) {
-        initGame();
-        gameLoop();
-    } else if (player.y >= canvas.height - player.height) {
-        player.dy = jumpPower;
-    }
-}
-canvas.addEventListener('touchstart', jump);
-document.addEventListener('keydown', (e) => { if (e.code === 'Space') jump(); });
-
-initGame();
-gameLoop();
-
-// ===== PWA Service Worker Registration =====
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Service Worker Registered:', reg.scope))
-        .catch(err => console.log('Service Worker Registration Failed:', err));
-    });
-}
-</script>
-
-</body>
-</html>
+// British guard (2-frame march)
+function drawGuard(px,py,frame=0){
+  pxRect(px,py, 22,28, '#bfa76c');         // uniform
+  pxRect(px+4,py-6, 10,6, '#f2caa6');      // head
+  pxRect(px,py+10, 22,6, '#8e7a45');       // belt
+  const leg = frame%2===0
