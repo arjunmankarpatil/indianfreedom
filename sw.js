@@ -3,8 +3,8 @@ const FILES = [
   'index.html',
   'manifest.json',
   'sw.js',
-  'icons/icon-192.svg',
-  'icons/icon-512.svg'
+  'icons/icon-192.png',
+  'icons/icon-512.png'
 ];
 
 self.addEventListener('install', evt => {
@@ -26,3 +26,4 @@ self.addEventListener('fetch', evt => {
     caches.match(evt.request).then(resp => resp || fetch(evt.request))
   );
 });
+
