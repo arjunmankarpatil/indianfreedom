@@ -1,76 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>Freedom Runner — Indian Independence (Pixel)</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<title>Freedom Runner — Pixel PWA</title>
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#FF9933" />
-<link rel="icon" sizes="192x192" href="icons/icon-192.png" />
-<link rel="apple-touch-icon" href="icons/icon-512.png" />
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF9933">
+<link rel="icon" href="icons/icon-192.svg" sizes="192x192" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-512.svg">
 
 <style>
-  :root{
-    --saffron:#FF9933; --green:#138808; --navy:#001a66; --ink:#0a1220; --sky:#9fdcff;
-  }
-  html,body{ margin:0; height:100%; background:#03101c; color:#fff; font-family:system-ui,Segoe UI,Inter,Arial,sans-serif; }
-  #wrap{ min-height:100%; display:flex; flex-direction:column; }
-  #topbar{
-    padding:8px 12px; text-align:center; font-weight:800; letter-spacing:.3px;
-    background:linear-gradient(90deg,var(--saffron),#fff,var(--green));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    text-shadow:0 0 10px rgba(255,255,255,.25);
-  }
-  #stage{
-    position:relative; flex:1; display:flex; align-items:center; justify-content:center;
-  }
-  canvas{ width:100vw; height:calc(100vh - 120px); max-height:86vh; display:block;
-          background:linear-gradient(#7fd1ff,#bfe9ff 65%, #eaf7ff); image-rendering:pixelated; }
-  #hud{
-    position:absolute; inset:0; pointer-events:none; padding:8px;
-    font-weight:800; text-shadow:0 2px 6px rgba(0,0,0,.35);
-  }
-  .pill{ position:absolute; top:8px; left:8px; background:rgba(0,0,0,.35);
-         border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:6px 10px; font-size:13px; }
-  .pill.r{ left:auto; right:8px; }
-  #touch{
-    position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:10px;
-    pointer-events:auto;
-  }
-  .tbtn{
-    -webkit-tap-highlight-color:transparent;
-    background:rgba(255,255,255,.9); color:#0a2340; border:none; border-radius:12px; padding:12px 16px;
-    font-weight:900; min-width:62px; box-shadow:0 6px 16px rgba(0,0,0,.2);
-  }
-  #bar{
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:10px;
-  }
-  button{
-    appearance:none; border:none; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer;
-    background:linear-gradient(180deg,#fff,#e7eef7); color:#0b2a50; box-shadow:0 4px 0 #9fb7cf, 0 10px 18px rgba(0,0,0,.15);
-  }
-  button:active{ transform:translateY(1px); box-shadow:0 2px 0 #9fb7cf, 0 6px 12px rgba(0,0,0,.15); }
-
-  footer{
-    text-align:center; padding:10px 8px 14px; color:#d9e6f2; font-size:14px;
-    background:linear-gradient(180deg,transparent,rgba(0,0,0,.25));
-  }
-  footer a{ color:#fff; font-weight:900; text-decoration:none; border-bottom:2px solid rgba(255,255,255,.6); }
+  :root{ --saffron:#FF9933; --white:#fff; --green:#138808; --navy:#001a66; --bg:#03101c; }
+  html,body{ height:100%; margin:0; background:linear-gradient(#04233a,#08263b 50%, #03101c); color:#fff; font-family:system-ui,Segoe UI,Roboto,Arial; }
+  #wrap{ display:flex; flex-direction:column; min-height:100vh; }
+  header{ text-align:center; padding:10px 8px; font-weight:900; letter-spacing:0.6px; }
+  #container{ flex:1; display:flex; align-items:center; justify-content:center; position:relative; padding:8px; }
+  canvas{ display:block; width:100%; max-width:1100px; height:auto; background:linear-gradient(#9fdcff,#bfe9ff 65%, #eaf7ff); image-rendering: pixelated; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+  #hud{ position:absolute; inset:0; pointer-events:none; padding:10px; font-weight:800; text-shadow:0 2px 6px rgba(0,0,0,.3); }
+  .pill{ position:absolute; top:10px; left:10px; background:rgba(0,0,0,.35); padding:6px 10px; border-radius:999px; font-size:13px; }
+  .pill.r{ left:auto; right:10px; }
+  #controls{ display:flex; gap:8px; justify-content:center; padding:10px; flex-wrap:wrap; }
+  button{ appearance:none; border:none; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer; background:linear-gradient(#fff,#e7eef7); color:#0b2a50; box-shadow:0 6px 12px rgba(0,0,0,.18);}
+  button:active{ transform:translateY(1px); }
+  #touchBar{ position:absolute; left:0; right:0; bottom:10px; display:none; justify-content:center; gap:8px; pointer-events:auto; }
+  .tbtn{ background:rgba(255,255,255,.95); color:#04233a; border-radius:12px; padding:12px 16px; font-weight:900; min-width:58px; }
+  footer{ text-align:center; padding:12px; font-size:14px; color:#d9e6f2; }
+  footer a{ color:#fff; font-weight:900; text-decoration:none; border-bottom:2px solid rgba(255,255,255,.45); }
+  @media (pointer:coarse){ #touchBar{ display:flex; } }
 </style>
 </head>
 <body>
 <div id="wrap">
-  <div id="topbar">🇮🇳 Freedom Runner — Pixel Edition</div>
+  <header>🇮🇳 <span style="font-size:18px">Freedom Runner</span> — Pixel Independence</header>
 
-  <div id="stage">
+  <div id="container">
     <canvas id="cv" width="960" height="540" aria-label="Freedom Runner Game"></canvas>
+
     <div id="hud" aria-hidden="true">
-      <div class="pill" id="stats">Score 0 • Chakras 0 • Dist 0%</div>
-      <div class="pill r" id="hint">Tap ⤴︎ to Jump • ◀ ▶ to Move • ⏸ Pause</div>
-      <div id="touch" style="display:none">
+      <div class="pill" id="status">Score 0 • Chakras 0 • 0%</div>
+      <div class="pill r" id="hint">Tap ⤴︎ to Jump • ◀ ▶ Move • ⏸ Pause</div>
+
+      <div id="touchBar" >
         <button class="tbtn" data-act="left">◀</button>
         <button class="tbtn" data-act="jump">⤴︎</button>
         <button class="tbtn" data-act="right">▶</button>
@@ -79,7 +51,7 @@
     </div>
   </div>
 
-  <div id="bar">
+  <div id="controls">
     <button id="start">▶ Start</button>
     <button id="restart" style="display:none">↻ Restart</button>
     <button id="mute">🔊 Sound</button>
@@ -92,41 +64,39 @@
 </div>
 
 <script>
-/* ========= FREEDOM RUNNER — Pixel Edition (Mobile + PWA) =========
-   - Responsive canvas, touch controls, offline-ready (via sw.js)
-   - Pixel art generated procedurally (no external assets)
-   - Player runs with flag, guards/barbed wire obstacles, Chakra coins
-==================================================================== */
+/* ===================== Freedom Runner — Pixel PWA =====================
+   Single-file game logic; pixel art drawn procedurally (no external sprites).
+   Mobile-friendly: responsive canvas, touch controls, tap-to-jump, start/restart/pause.
+   PWA: register sw.js (provided), manifest.json (provided).
+====================================================================== */
 
-const CV = document.getElementById('cv');
-const C = CV.getContext('2d', { alpha: false });
-const stats = document.getElementById('stats');
+const cv = document.getElementById('cv');
+const C = cv.getContext('2d', { alpha:false });
+const statusEl = document.getElementById('status');
 const startBtn = document.getElementById('start');
 const restartBtn = document.getElementById('restart');
 const muteBtn = document.getElementById('mute');
-const touch = document.getElementById('touch');
-const hint = document.getElementById('hint');
+const touchBar = document.getElementById('touchBar');
 
-let muted = false;
-
-// ---------- Responsive sizing (mobile-first) ----------
-function fitCanvas(){
-  const availH = window.innerHeight - document.getElementById('bar').offsetHeight - 56; // topbar+footer approx
-  const w = window.innerWidth, h = Math.max(280, availH);
-  // Keep internal buffer 16:9 but scale visually, use DPR for crispness
-  const DPR = Math.min(3, window.devicePixelRatio || 1);
-  CV.style.width = w + 'px';
-  CV.style.height = h + 'px';
-  CV.width = Math.round(w * DPR);
-  CV.height = Math.round(h * DPR);
-  C.setTransform(DPR,0,0,DPR,0,0); // draw in CSS pixels
+let DPR = Math.min(3, window.devicePixelRatio || 1);
+function fit() {
+  // Fill width while keeping aspect-like usable height; scale backing store by DPR
+  const maxW = Math.min(window.innerWidth - 16, 1200);
+  const availH = window.innerHeight - document.querySelector('footer').offsetHeight - 140;
+  const cssH = Math.max(320, availH);
+  cv.style.width = maxW + 'px';
+  cv.style.height = cssH + 'px';
+  cv.width = Math.round(maxW * DPR);
+  cv.height = Math.round(cssH * DPR);
+  C.setTransform(DPR,0,0,DPR,0,0);
 }
-addEventListener('resize', fitCanvas);
-fitCanvas();
+window.addEventListener('resize', fit);
+fit();
 
-// ---------- Mini beep synth ----------
+// Simple beep synth (small)
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 const actx = new AudioCtx();
+let muted = false;
 function beep(freq=440, dur=0.08, type='square', vol=.12){
   if(muted) return;
   const t = actx.currentTime;
@@ -140,104 +110,404 @@ function beep(freq=440, dur=0.08, type='square', vol=.12){
   o.start(t); o.stop(t+dur+0.05);
 }
 
-// ---------- Game state ----------
-let state = 'title'; // title|play|pause|over|win
-const G = { // dynamic based on canvas height
-  ground() { return CV.height/2 + Math.min(220, CV.height*0.24); }
-};
-const player = {
-  x: 60, y: 0, w: 20, h: 26, vy: 0, onGround: false, speed: 3.2,
-  anim:0, flagWave:0, shield:false, slow:0, trail:[]
-};
-let camX = 0, dist = 0, score = 0, coins = 0, lives = 1;
-const GOAL_DIST = 5000;
-const chakras = [], patrols = [], wires = [], powerups = [];
-let t = 0, last = 0;
+muteBtn.addEventListener('click', ()=>{ muted = !muted; muteBtn.textContent = muted ? '🔇 Muted' : '🔊 Sound'; });
 
-// ---------- Inputs ----------
+// ---------- Game variables ----------
+let state = 'title'; // title | play | pause | over | win
+let t = 0, last = 0;
+const GOAL = 5000;
+
+const world = {
+  camX:0, dist:0, score:0, chakras:0, lives:1
+};
+
+const player = {
+  x:100, y:0, w:22, h:30, vy:0, speed:2.8, onGround:false, anim:0, flagWave:0,
+  shield:false, slow:0, trail:[]
+};
+
+let chakras = [], guards = [], wires = [], powerups = [];
+
+// Input
 const keys = {left:false,right:false,up:false};
-addEventListener('keydown', (e)=>{
+addEventListener('keydown', e=>{
   if(['ArrowLeft','ArrowRight','ArrowUp','Space','KeyA','KeyD','KeyW','KeyP'].includes(e.code)) e.preventDefault();
   if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=true;
   if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=true;
   if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') keys.up=true;
   if(e.code==='KeyP') togglePause();
 });
-addEventListener('keyup', (e)=>{
+addEventListener('keyup', e=>{
   if(e.code==='ArrowLeft'||e.code==='KeyA') keys.left=false;
   if(e.code==='ArrowRight'||e.code==='KeyD') keys.right=false;
   if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW') keys.up=false;
 });
 
-// Touch UI
+// Touch controls
 const isTouch = matchMedia('(pointer:coarse)').matches;
-if(isTouch){ touch.style.display='flex'; hint.textContent='Tap ⤴︎ to Jump • ◀ ▶ Move • ⏸ Pause'; }
-touch.addEventListener('touchstart', (e)=>{
-  const act = e.target.closest('.tbtn')?.dataset.act; if(!act) return;
-  if(act==='left') keys.left = true;
-  if(act==='right') keys.right = true;
-  if(act==='jump') keys.up = true;
-  if(act==='pause') togglePause();
-},{passive:false});
-touch.addEventListener('touchend',(e)=>{
-  const act = e.target.closest('.tbtn')?.dataset.act; if(!act) return;
-  if(act==='left') keys.left = false;
-  if(act==='right') keys.right = false;
-  if(act==='jump') keys.up = false;
+if(isTouch) touchBar.style.display = 'flex';
+touchBar.querySelectorAll('button').forEach(b=>{
+  b.addEventListener('touchstart', ev=>{
+    ev.preventDefault();
+    const act = b.dataset.act;
+    if(act==='left') keys.left=true;
+    if(act==='right') keys.right=true;
+    if(act==='jump') keys.up=true;
+    if(act==='pause') togglePause();
+  }, {passive:false});
+  b.addEventListener('touchend', ev=>{
+    ev.preventDefault();
+    const act = b.dataset.act;
+    if(act==='left') keys.left=false;
+    if(act==='right') keys.right=false;
+    if(act==='jump') keys.up=false;
+  }, {passive:false});
 });
 
-// ---------- World builders ----------
+// Helpers
 const R = (a,b)=>Math.random()*(b-a)+a;
 const RI = (a,b)=>Math.floor(R(a,b+1));
 function rects(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 
+// World builder
 function buildWorld(){
-  chakras.length=0; patrols.length=0; wires.length=0; powerups.length=0;
-  for(let x=420; x<GOAL_DIST; x+= RI(220,420)) chakras.push({x, y:G.ground()- RI(90,150), r:14, v:R(0.08,0.2)});
-  for(let x=580; x<GOAL_DIST; x+= RI(460,720)) patrols.push({x, y:G.ground()-30, w:22, h:30, phase:R(0,6.28)});
-  for(let x=840; x<GOAL_DIST; x+= RI(680,980)) wires.push({x, y:G.ground()-16, w: RI(50,100), h:12});
-  for(let x=1200; x<GOAL_DIST; x+= RI(900,1400)) powerups.push({x, y:G.ground()-RI(110,160), w:24, h:24, type: Math.random()<0.5?'charkha':'flag', bob:R(0,6.28)});
+  chakras = []; guards = []; wires = []; powerups = [];
+  for(let x=600;x<GOAL;x+=RI(220,420)) chakras.push({x, y: ground()-RI(90,150), r:12, spin:R(-0.12,0.12), v:R(0.08,0.22)});
+  for(let x=900;x<GOAL;x+=RI(480,760)) guards.push({x, y: ground()-34, w:22, h:34, phase:R(0,6.28)});
+  for(let x=1000;x<GOAL;x+=RI(680,980)) wires.push({x, y: ground()-18, w: RI(50,110), h:12});
+  for(let x=1400;x<GOAL;x+=RI(900,1400)) powerups.push({x, y: ground()-RI(110,160), w:20, h:20, type: Math.random()<0.5?'charkha':'flag', bob:R(0,6.28)});
 }
 
-// ---------- Pixel Art (drawn procedurally) ----------
-function pxRect(x,y,w,h,color){ C.fillStyle=color; C.fillRect(x,y,w,h); }
+// Ground Y (based on canvas height)
+function ground(){
+  // choose a ground line relative to CSS pixels
+  const cssH = parseFloat(cv.style.height);
+  return (cv.height / DPR) * 0.65; // reasonable ground line
+}
 
-// Flag (tricolour with chakra)
+// Pixel-drawing utilities (scaled to draw at integer pixel sizes)
+function pxRect(x,y,w,h,color){ C.fillStyle=color; C.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h)); }
+
+// Draw a small tricolor flag with chakra (pixel style)
 function drawFlag(x,y,scale=1){
-  const w = 18*scale, h = 12*scale;
-  pxRect(x,y,w,h/3,'#FF9933');          // saffron
-  pxRect(x,y+h/3,w,h/3,'#ffffff');      // white
-  pxRect(x,y+2*h/3,w,h/3,'#138808');    // green
-  // chakra
-  C.strokeStyle = '#001a66'; C.lineWidth = Math.max(1, 1*scale);
-  C.beginPath(); C.arc(x+w/2,y+h/2, (h/2.8),0,Math.PI*2); C.stroke();
+  const w = Math.round(18*scale), h = Math.round(12*scale);
+  pxRect(x,y, w, Math.round(h/3), '#FF9933');
+  pxRect(x,y+Math.round(h/3), w, Math.round(h/3), '#ffffff');
+  pxRect(x,y+2*Math.round(h/3), w, Math.round(h/3), '#138808');
+  // simple chakra circle (stroke)
+  C.strokeStyle = '#001a66'; C.lineWidth = Math.max(1, Math.round(1*scale));
+  C.beginPath(); C.arc(x + w/2, y + h/2, Math.max(1, Math.round(h/6)), 0, Math.PI*2); C.stroke();
+}
+
+// Player pixel sprite (two-frame run) drawn at canvas pixel scale
+function drawPlayerSprite(px,py,frame){
+  // torso
+  pxRect(px,py, 18,26, '#163f6b');
+  // head
+  pxRect(px+6,py-8, 6,6, '#ffd7b3');
+  // eye
+  pxRect(px+8,py-6,1,1,'#000');
+  // legs (alternating)
+  if(frame%2===0){
+    pxRect(px+2,py+22,6,4,'#0b2541'); pxRect(px+10,py+20,6,6,'#0b2541');
+  } else {
+    pxRect(px+2,py+20,6,6,'#0b2541'); pxRect(px+10,py+22,6,4,'#0b2541');
+  }
+  // flag pole
+  C.strokeStyle='#704214'; C.lineWidth=2; C.beginPath(); C.moveTo(px+16, py-6); C.lineTo(px+16, py+2); C.stroke();
+  // waving flag uses flagWave offset
+  const sway = Math.round(Math.sin(player.flagWave)*2);
+  drawFlag(px+16, py-10 + sway, 0.9);
+}
+
+// Guard sprite (2-frame)
+function drawGuard(px,py,frame){
+  pxRect(px,py, 20,30, '#bfa76c'); // uniform
+  pxRect(px+5,py-6, 10,6, '#f2caa6'); // head
+  pxRect(px+2,py+10, 16,5, '#8e7a45'); // sash/belt
+  // legs
+  if(frame%2===0){
+    pxRect(px+2,py+22,6,4,'#5b4a2f'); pxRect(px+12,py+20,6,6,'#5b4a2f');
+  } else {
+    pxRect(px+2,py+20,6,6,'#5b4a2f'); pxRect(px+12,py+22,6,4,'#5b4a2f');
+  }
+  // hat
+  pxRect(px+3,py-10,14,6,'#331a00');
+}
+
+// draw chakra collectible (pixel coin with spokes)
+function drawChakra(x,y,spin){
+  // white disk
+  pxRect(x-10,y-10,20,20,'#ffffff');
+  // blue circle center
+  C.strokeStyle = '#001a66'; C.lineWidth = 2;
+  C.beginPath(); C.arc(x, y, 6, 0, Math.PI*2); C.stroke();
+  // spokes
   for(let i=0;i<12;i++){
-    const a = i*(Math.PI*2/12);
-    C.beginPath();
-    C.moveTo(x+w/2,y+h/2);
-    C.lineTo(x+w/2+Math.cos(a)*h/2.8,y+h/2+Math.sin(a)*h/2.8);
-    C.stroke();
+    const a = i*(Math.PI*2/12) + spin;
+    const sx = Math.round(x + Math.cos(a)*6);
+    const sy = Math.round(y + Math.sin(a)*6);
+    pxRect(sx,sy,1,1,'#001a66');
   }
 }
 
-// Player sprite (simple 2-frame run + waving flag)
-function drawPlayer(px,py,frame=0){
-  // body
-  pxRect(px,py, 20,26, '#1a3d6b');           // torso
-  pxRect(px+6,py-6, 8,6, '#ffd7b3');         // head
-  // legs (run anim)
-  const leg = frame%2===0 ? [ [2,24,6,2], [12,22,6,2] ] : [ [2,22,6,2], [12,24,6,2] ];
-  leg.forEach(L=>pxRect(px+L[0], py+L[1], L[2], L[3], '#0f2541'));
-  // flag pole
-  C.strokeStyle='#704214'; C.lineWidth=2; C.beginPath(); C.moveTo(px+19, py-6); C.lineTo(px+19, py+2); C.stroke();
-  // flag cloth sway
-  const sway = Math.sin(player.flagWave)*2;
-  drawFlag(px+19, py-10 + sway, 0.9);
+// barbed wire obstacle
+function drawWire(px,py,w){
+  // base grey bar
+  pxRect(px,py, w, 6, '#4b4b4b');
+  // little barbs
+  for(let i=0;i<w;i+=6){
+    pxRect(px+i,py-2,2,10,'#cccccc');
+  }
 }
 
-// British guard (2-frame march)
-function drawGuard(px,py,frame=0){
-  pxRect(px,py, 22,28, '#bfa76c');         // uniform
-  pxRect(px+4,py-6, 10,6, '#f2caa6');      // head
-  pxRect(px,py+10, 22,6, '#8e7a45');       // belt
-  const leg = frame%2===0
+// sky tricolor flags (decorative)
+function drawSkyDecor(camX, tval){
+  // repeating small flags across the sky
+  const w = parseFloat(cv.style.width);
+  for(let i=-2;i<10;i++){
+    const fx = (i*140 + (tval*0.12) ) % (w+200) - 100 - (camX*0.06);
+    const fy = 60 + Math.sin(i*0.5 + tval*0.01)*10;
+    drawFlag(fx, fy, 0.7);
+  }
+}
+
+// environment draw
+function drawGroundStrip(){
+  const g = ground();
+  // grass strip
+  C.fillStyle = '#2e6f3c';
+  C.fillRect(0, g, cv.width/DPR, cv.height/DPR - g);
+  // tiles
+  const tile = 40;
+  for(let i= -1; i < cv.width/DPR / tile + 2; i++){
+    const x = i*tile + ( - (world.camX*0.3) % tile );
+    C.fillStyle = (i%2)? '#388e3c' : '#2e7d32';
+    C.fillRect(x, g, tile, 6);
+  }
+}
+
+// draw HUD overlay text
+function drawHUD(){
+  const pct = Math.min(100, Math.floor((world.dist/GOAL)*100));
+  statusEl.textContent = `Score ${world.score} • Chakras ${world.chakras} • ${pct}%`;
+}
+
+// spawn initial world
+function startGame(){
+  // resume audio context on user gesture
+  if(actx.state === 'suspended') actx.resume();
+  state = 'play';
+  t = 0; last = performance.now();
+  world.camX = 0; world.dist = 0; world.score = 0; world.chakras = 0; world.lives = 1;
+  player.x = 120; player.y = ground() - player.h; player.vy = 0; player.onGround=true; player.trail = [];
+  player.flagWave = 0; player.anim = 0; player.shield = false; player.slow = 0;
+  buildWorld();
+  startBtn.style.display = 'none';
+  restartBtn.style.display = 'none';
+  beep(520,0.08); setTimeout(()=>beep(660,0.08),80);
+}
+
+// restart (same as start)
+restartBtn.addEventListener('click', ()=>{ startGame(); });
+startBtn.addEventListener('click', ()=>{ startGame(); });
+
+// Pause toggle
+function togglePause(){
+  if(state === 'play') state = 'pause';
+  else if(state === 'pause') state = 'play';
+}
+
+// game loop
+function loop(ts){
+  const dt = Math.min(40, ts - last) / 16.666; // ~60fps baseline
+  last = ts;
+  if(state === 'play') update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// Update logic
+function update(dt){
+  t += dt;
+  // input movement
+  if(keys.left) player.x -= player.speed * dt * 1.1;
+  if(keys.right) player.x += player.speed * dt * 1.1;
+
+  // jump
+  if(keys.up && player.onGround){
+    player.vy = -9; player.onGround = false; beep(800,0.06,'sine',.12);
+  }
+  // gravity
+  player.vy += 0.5 * dt;
+  player.y += player.vy * dt;
+  const g = ground();
+  if(player.y + player.h >= g){ player.y = g - player.h; player.vy = 0; player.onGround = true; }
+
+  // camera follows player (but limited)
+  world.camX = Math.max(0, player.x - (cv.width/DPR) * 0.28);
+  world.dist = Math.max(world.dist, player.x);
+
+  // update guards/wires/chakras/powerups
+  for(let i=guards.length-1;i>=0;i--){
+    const gobj = guards[i];
+    gobj.x -= 1.4 * dt; // gentle left motion relative to world
+    // convert to world coords for collision with player: compare player.x to gobj.x
+    if(rects({x:player.x, y:player.y, w:player.w, h:player.h}, {x:gobj.x, y:gobj.y - gobj.h, w:gobj.w, h:gobj.h})){
+      // collision with guard
+      if(player.shield){ player.shield = false; beep(220,0.12,'sawtooth',.12); guards.splice(i,1); }
+      else { // game over
+        state = 'over'; restartBtn.style.display='inline-block'; beep(180,0.18,'square',.2); return; }
+    }
+    if(gobj.x < world.camX - 200) guards.splice(i,1);
+  }
+
+  for(let i=wires.length-1;i>=0;i--){
+    const wobj = wires[i];
+    wobj.x -= 1.4 * dt;
+    if(rects({x:player.x, y:player.y, w:player.w, h:player.h}, {x:wobj.x, y:wobj.y - wobj.h, w:wobj.w, h:wobj.h})){
+      if(player.shield){ player.shield=false; wires.splice(i,1); beep(220,0.12); }
+      else { state='over'; restartBtn.style.display='inline-block'; beep(180,0.18,'square',.2); return; }
+    }
+    if(wobj.x < world.camX - 200) wires.splice(i,1);
+  }
+
+  for(let i=chakras.length-1;i>=0;i--){
+    const cobj = chakras[i];
+    // animate
+    cobj.y += Math.sin(t*0.04 + i)*cobj.v * 0.6;
+    if( Math.abs((player.x + player.w/2) - cobj.x) < 26 && Math.abs((player.y + player.h/2) - cobj.y) < 26 ){
+      chakras.splice(i,1); world.score += 10; world.chakras++; beep(880,0.06,'triangle',.12);
+    }
+    if(cobj.x < world.camX - 200) chakras.splice(i,1);
+  }
+
+  for(let i=powerups.length-1;i>=0;i--){
+    const p = powerups[i];
+    if(rects({x:player.x,y:player.y,w:player.w,h:player.h},{x:p.x,y:p.y,w:p.w,h:p.h})){
+      if(p.type === 'charkha'){ player.slow = 300; beep(520,0.08,'sine',.12); }
+      else { player.shield = true; beep(1040,0.08,'sine',.12); }
+      powerups.splice(i,1);
+    }
+    if(p.x < world.camX - 200) powerups.splice(i,1);
+  }
+
+  // spawn new world objects ahead if needed (keeps world populated)
+  if(chakras.length < 6){
+    const px = world.dist + RI(600,1200);
+    chakras.push({x: px, y: ground()-RI(90,150), r:12, spin:R(-0.12,0.12), v:R(0.08,0.22)});
+  }
+  if(guards.length < 3 && Math.random() < 0.03){
+    guards.push({x: world.dist + RI(800,1400), y: ground(), w:22, h:34, phase:R(0,6.28)});
+  }
+  if(wires.length < 2 && Math.random() < 0.02){
+    wires.push({x: world.dist + RI(900,1800), y: ground()-18, w: RI(50,110), h:12});
+  }
+  if(powerups.length < 2 && Math.random() < 0.015){
+    powerups.push({x: world.dist + RI(1200,2200), y: ground()-RI(100,160), w:20, h:20, type: Math.random()<0.5?'charkha':'flag', bob:R(0,6.28)});
+  }
+
+  // update player anims
+  player.flagWave += 0.12 * dt;
+  player.anim += dt;
+  world.score += Math.max(0, Math.round(0.2 * dt));
+}
+
+// Render everything
+function render(){
+  // clear
+  C.fillStyle = '#9fdcff';
+  C.fillRect(0,0, cv.width/DPR, cv.height/DPR);
+
+  // sky decor
+  drawSkyDecor(world.camX, t);
+
+  // ground & environment
+  drawGroundStrip();
+
+  // goal gate when near
+  if(world.dist > GOAL - 800){
+    const gx = GOAL - world.camX;
+    C.fillStyle = '#5d4037'; C.fillRect(gx-40, ground()-120, 80, 120);
+    C.fillStyle = '#f5f5f5'; C.font = '14px sans-serif'; C.fillText('15 AUG 1947', gx-54, ground()-24);
+  }
+
+  // draw chakras (collectibles)
+  chakras.forEach(cobj=>{
+    drawChakra(cobj.x - world.camX, cobj.y, cobj.spin + t*0.02);
+  });
+
+  // draw wires
+  wires.forEach(wobj=>{
+    drawWire(wobj.x - world.camX, wobj.y, wobj.w);
+  });
+
+  // draw guards
+  guards.forEach((gobj, idx)=>{
+    drawGuard(gobj.x - world.camX, gobj.y - gobj.h, Math.floor(t) + idx);
+  });
+
+  // draw player (above world cam)
+  drawPlayerSprite(player.x - world.camX, player.y, Math.floor(player.anim));
+
+  // draw HUD overlay text
+  drawHUD();
+
+  // overlay state screens
+  if(state === 'title'){
+    C.fillStyle = 'rgba(0,0,0,0.45)';
+    C.fillRect(0,0, cv.width/DPR, cv.height/DPR);
+    C.fillStyle = '#fff'; C.textAlign = 'center';
+    C.font = 'bold 40px system-ui'; C.fillText('FREEDOM RUNNER', (cv.width/DPR)/2, (cv.height/DPR)/2 - 40);
+    C.font = '16px system-ui'; C.fillText('Tap Start • Tap to Jump • Collect Chakras', (cv.width/DPR)/2, (cv.height/DPR)/2);
+  } else if(state === 'pause'){
+    C.fillStyle = 'rgba(0,0,0,0.35)'; C.fillRect(0,0,cv.width/DPR,cv.height/DPR);
+    C.fillStyle='#fff'; C.textAlign='center'; C.font='24px system-ui'; C.fillText('Paused — Tap Pause to Resume', (cv.width/DPR)/2, (cv.height/DPR)/2);
+  } else if(state === 'over'){
+    C.fillStyle = 'rgba(0,0,0,0.45)'; C.fillRect(0,0,cv.width/DPR,cv.height/DPR);
+    C.fillStyle='#fff'; C.textAlign='center'; C.font='28px system-ui'; C.fillText('Game Over — Tap Restart', (cv.width/DPR)/2, (cv.height/DPR)/2 - 10);
+  } else if(state === 'win'){
+    C.fillStyle = 'rgba(0,0,0,0.25)'; C.fillRect(0,0,cv.width/DPR,cv.height/DPR);
+    C.fillStyle='#fff'; C.textAlign='center'; C.font='26px system-ui'; C.fillText('You Reached Midnight! Azadi!', (cv.width/DPR)/2, (cv.height/DPR)/2 - 10);
+  }
+}
+
+// Interaction: tapping canvas = jump or restart
+cv.addEventListener('touchstart', (e)=>{ e.preventDefault();
+  if(state === 'title') { startGame(); return; }
+  if(state === 'over'){ startGame(); return; }
+  if(state === 'play'){
+    if(player.onGround){ player.vy = -9; player.onGround=false; beep(880,0.06,'triangle',.12); }
+  } else if(state === 'pause'){ togglePause(); }
+}, {passive:false});
+
+cv.addEventListener('mousedown', (e)=>{
+  if(state === 'title') { startGame(); return; }
+  if(state === 'over'){ startGame(); return; }
+  if(state === 'play'){
+    if(player.onGround){ player.vy = -9; player.onGround=false; beep(880,0.06,'triangle',.12); }
+  } else if(state === 'pause'){ togglePause(); }
+});
+
+// Register service worker (PWA)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> {
+    navigator.serviceWorker.register('sw.js')
+      .then(r => console.log('sw registered', r.scope))
+      .catch(e => console.log('sw reg failed', e));
+  });
+}
+
+// initial UI state
+startBtn.style.display='inline-block';
+restartBtn.style.display='none';
+startBtn.addEventListener('click', ()=>startGame());
+restartBtn.addEventListener('click', ()=>startGame());
+
+// Give the title overlay initially
+state='title';
+
+</script>
+</body>
+</html>
