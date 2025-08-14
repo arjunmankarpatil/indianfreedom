@@ -1,0 +1,21 @@
+{
+  "name": "Freedom Runner — Indian Independence",
+  "short_name": "FreedomRunner",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#03101c",
+  "theme_color": "#FF9933",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

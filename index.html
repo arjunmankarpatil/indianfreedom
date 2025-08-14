@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom Runner — Indian Independence</title>
+
+<!-- PWA Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF9933">
+<link rel="icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-512.png">
+
+<style>
+    body {
+        margin: 0;
+        background: #03101c;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+    canvas {
+        display: block;
+        margin: auto;
+        background: linear-gradient(#FF9933, white, #138808);
+    }
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+    }
+    footer a {
+        color: #00aced;
+        text-decoration: none;
+    }
+</style>
+</head>
+<body>
+
+<h1>🇮🇳 Freedom Runner 🇮🇳</h1>
+<canvas id="gameCanvas" width="800" height="400"></canvas>
+
+<footer>
+    A game by Arjun Mankar — 
+    <a href="https://www.instagram.com/arjunmankar79/" target="_blank">@arjunmankar79</a>
+</footer>
+
+<script>
+// ====== GAME SCRIPT ======
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let player = { x: 50, y: 300, width: 40, height: 40, dy: 0, jumpPower: -10, gravity: 0.5 };
+let obstacles = [];
+let score = 0;
+let gameOver = false;
+
+function drawPlayer() {
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function drawObstacles() {
+    ctx.fillStyle = '#8B0000';
+    obstacles.forEach(obs => {
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    });
+}
+
+function drawScore() {
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Score: ${score}`, 10, 20);
+}
+
+function updatePlayer() {
+    player.y += player.dy;
+    player.dy += player.gravity;
+
+    if (player.y + player.height > canvas.height) {
+        player.y = canvas.height - player.height;
+        player.dy = 0;
+    }
+}
+
+function spawnObstacle() {
+    let height = 40;
+    let y = canvas.height - height;
+    obstacles.push({ x: canvas.width, y: y, width: 20, height: height });
+}
+
+function updateObstacles() {
+    obstacles.forEach(obs => {
+        obs.x -= 5;
+    });
+    obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+}
+
+function checkCollision() {
+    obstacles.forEach(obs => {
+        if (player.x < obs.x + obs.width &&
+            player.x + player.width > obs.x &&
+            player.y < obs.y + obs.height &&
+            player.y + player.height > obs.y) {
+            gameOver = true;
+        }
+    });
+}
+
+function gameLoop() {
+    if (gameOver) {
+        ctx.fillStyle = 'black';
+        ctx.font = '30px Arial';
+        ctx.fillText("Game Over! Refresh to Play Again", 150, 200);
+        return;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPlayer();
+    drawObstacles();
+    drawScore();
+
+    updatePlayer();
+    updateObstacles();
+    checkCollision();
+
+    score++;
+    if (score % 100 === 0) spawnObstacle();
+
+    requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && player.y >= canvas.height - player.height) {
+        player.dy = player.jumpPower;
+    }
+});
+
+gameLoop();
+
+// ===== PWA Service Worker Registration =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered:', reg.scope))
+        .catch(err => console.log('Service Worker Registration Failed:', err));
+    });
+}
+</script>
+
+</body>
+</html>
